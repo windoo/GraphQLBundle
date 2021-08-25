@@ -42,7 +42,7 @@ class GraphQLConfigureCommand extends Command
         $isComposerCall = $input->getOption('composer');
 
         $container  = $this->getContainer();
-        $rootDir    = $container->getParameter('kernel.root_dir');
+        $rootDir    = $container->getParameter('kernel.project_dir');
         $configFile = $rootDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config/packages/graphql.yml';
 
         $className       = 'Schema';
