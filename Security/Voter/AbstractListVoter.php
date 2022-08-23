@@ -21,12 +21,12 @@ abstract class AbstractListVoter extends Voter
     /** @var bool */
     private $enabled = false;
 
-    protected function supports($attribute, $subject)
+    protected function supports($attribute, $subject): bool
     {
         return $this->enabled && $attribute == SecurityManagerInterface::RESOLVE_ROOT_OPERATION_ATTRIBUTE;
     }
 
-    protected function isLoggedInUser(TokenInterface $token)
+    protected function isLoggedInUser(TokenInterface $token): bool
     {
         return is_object($token->getUser());
     }
@@ -39,12 +39,12 @@ abstract class AbstractListVoter extends Voter
     /**
      * @return \string[]
      */
-    public function getList()
+    public function getList(): array
     {
         return $this->list;
     }
 
-    protected function inList($query)
+    protected function inList($query): bool
     {
         return in_array($query, $this->list);
     }
