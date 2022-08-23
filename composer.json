@@ -19,11 +19,17 @@
   },
   "require": {
     "php": ">=8.0",
-    "youshido/graphql": "~1.4"
+    "youshido/graphql": "dev-symfony-6"
   },
   "require-dev": {
-    "phpunit/phpunit": "~4.7",
+    "phpunit/phpunit": "*",
     "composer/composer": "~1.2",
-    "symfony/framework-bundle": "~2.7|~3.0"
-  }
+    "symfony/framework-bundle": "5.4.*|6.*"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/windoo/GraphQL"
+    }
+  ]
 }
