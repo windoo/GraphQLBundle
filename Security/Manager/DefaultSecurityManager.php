@@ -16,20 +16,14 @@ use Youshido\GraphQL\Parser\Ast\Query;
 class DefaultSecurityManager implements SecurityManagerInterface
 {
 
-    /** @var bool */
-    private $fieldSecurityEnabled = false;
+    private bool $fieldSecurityEnabled = false;
 
-    /** @var bool */
-    private $rootOperationSecurityEnabled = false;
+    private bool $rootOperationSecurityEnabled = false;
 
-    /** @var  AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker, array $guardConfig = [])
+    public function __construct(private AuthorizationCheckerInterface $authorizationChecker, array $guardConfig = [])
     {
-        $this->authorizationChecker         = $authorizationChecker;
-        $this->fieldSecurityEnabled         = isset($guardConfig['field']) ? $guardConfig['field'] : false;
-        $this->rootOperationSecurityEnabled = isset($guardConfig['operation']) ? $guardConfig['operation'] : false;
+        $this->fieldSecurityEnabled         = $guardConfig['field'] ?? false;
+        $this->rootOperationSecurityEnabled = $guardConfig['operation'] ?? false;
     }
 
     /**
@@ -65,8 +59,6 @@ class DefaultSecurityManager implements SecurityManagerInterface
     }
 
     /**
-     * @param Query $query
-     *
      * @return bool
      */
     public function isGrantedToOperationResolve(Query $query)
@@ -75,8 +67,6 @@ class DefaultSecurityManager implements SecurityManagerInterface
     }
 
     /**
-     * @param ResolveInfo $resolveInfo
-     *
      * @return bool
      */
     public function isGrantedToFieldResolve(ResolveInfo $resolveInfo)
@@ -85,10 +75,8 @@ class DefaultSecurityManager implements SecurityManagerInterface
     }
 
     /**
-     * @param ResolveInfo $resolveInfo
      *
      * @return mixed
-     *
      * @throw \Exception
      */
     public function createNewFieldAccessDeniedException(ResolveInfo $resolveInfo)
@@ -97,10 +85,8 @@ class DefaultSecurityManager implements SecurityManagerInterface
     }
 
     /**
-     * @param Query $query
      *
      * @return mixed
-     *
      * @throw \Exception
      */
     public function createNewOperationAccessDeniedException(Query $query)

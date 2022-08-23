@@ -11,7 +11,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class GraphQLConfigureCommand extends ContainerAwareCommand
 {
-    const PROJECT_NAMESPACE = 'App';
+    public const PROJECT_NAMESPACE = 'App';
 
     /**
      * {@inheritdoc}
@@ -69,7 +69,7 @@ class GraphQLConfigureCommand extends ContainerAwareCommand
             }
 
             $originalConfigData = file_get_contents($configFile);
-            if (strpos($originalConfigData, 'graphql') === false) {
+            if (!str_contains($originalConfigData, 'graphql')) {
                 $projectNameSpace = self::PROJECT_NAMESPACE;
                 $configData       = <<<CONFIG
 graphql:
@@ -125,7 +125,7 @@ CONFIG;
         $routerResources = $this->getContainer()->get('router')->getRouteCollection()->getResources();
         foreach ($routerResources as $resource) {
             /** @var FileResource|DirectoryResource $resource */
-            if (method_exists($resource, 'getResource') && strpos($resource->getResource(), 'GraphQLController.php') !== false) {
+            if (method_exists($resource, 'getResource') && str_contains($resource->getResource(), 'GraphQLController.php')) {
                 return true;
             }
         }

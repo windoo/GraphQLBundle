@@ -17,57 +17,49 @@ class GraphQLExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $container = $this->loadContainerFromFile('empty', 'yml');
 
-        $this->assertNull($container->getParameter('graphql.schema_class'));
-        $this->assertEquals(null, $container->getParameter('graphql.max_complexity'));
-        $this->assertEquals(null, $container->getParameter('graphql.logger'));
-        $this->assertEmpty($container->getParameter('graphql.security.white_list'));
-        $this->assertEmpty($container->getParameter('graphql.security.black_list'));
-        $this->assertEquals([
+        static::assertNull($container->getParameter('graphql.schema_class'));
+        static::assertEquals(null, $container->getParameter('graphql.max_complexity'));
+        static::assertEquals(null, $container->getParameter('graphql.logger'));
+        static::assertEmpty($container->getParameter('graphql.security.white_list'));
+        static::assertEmpty($container->getParameter('graphql.security.black_list'));
+        static::assertEquals([
             'field' => false,
             'operation' => false,
-        ],
-            $container->getParameter('graphql.security.guard_config')
-        );
+        ], $container->getParameter('graphql.security.guard_config'));
 
-        $this->assertTrue($container->getParameter('graphql.response.json_pretty'));
-        $this->assertEquals([
+        static::assertTrue($container->getParameter('graphql.response.json_pretty'));
+        static::assertEquals([
                 'Access-Control-Allow-Origin' => '*',
                 'Access-Control-Allow-Headers' => 'Content-Type',
-            ],
-            $container->getParameter('graphql.response.headers')
-        );
+            ], $container->getParameter('graphql.response.headers'));
     }
 
     public function testDefaultCanBeOverridden()
     {
         $container = $this->loadContainerFromFile('full', 'yml');
-        $this->assertEquals('AppBundle\GraphQL\Schema', $container->getParameter('graphql.schema_class'));
-        $this->assertEquals(10, $container->getParameter('graphql.max_complexity'));
-        $this->assertEquals('@logger', $container->getParameter('graphql.logger'));
+        static::assertEquals('AppBundle\GraphQL\Schema', $container->getParameter('graphql.schema_class'));
+        static::assertEquals(10, $container->getParameter('graphql.max_complexity'));
+        static::assertEquals('@logger', $container->getParameter('graphql.logger'));
 
-        $this->assertEquals(['hello'], $container->getParameter('graphql.security.black_list'));
-        $this->assertEquals(['world'], $container->getParameter('graphql.security.white_list'));
-        $this->assertEquals([
+        static::assertEquals(['hello'], $container->getParameter('graphql.security.black_list'));
+        static::assertEquals(['world'], $container->getParameter('graphql.security.white_list'));
+        static::assertEquals([
             'field' => true,
             'operation' => true,
-        ],
-            $container->getParameter('graphql.security.guard_config')
-        );
+        ], $container->getParameter('graphql.security.guard_config'));
 
-        $this->assertFalse($container->getParameter('graphql.response.json_pretty'));
-        $this->assertEquals([
+        static::assertFalse($container->getParameter('graphql.response.json_pretty'));
+        static::assertEquals([
             'X-Powered-By' => 'GraphQL',
-        ],
-            $container->getParameter('graphql.response.headers')
-        );
+        ], $container->getParameter('graphql.response.headers'));
 
     }
 
-    private function loadContainerFromFile($file, $type, array $services = array(), $skipEnvVars = false)
+    private function loadContainerFromFile($file, $type, array $services = [], $skipEnvVars = false)
     {
         $container = new ContainerBuilder();
         if ($skipEnvVars && !method_exists($container, 'resolveEnvPlaceholders')) {
-            $this->markTestSkipped('Runtime environment variables has been introduced in the Dependency Injection version 3.2.');
+            static::markTestSkipped('Runtime environment variables has been introduced in the Dependency Injection version 3.2.');
         }
         $container->setParameter('kernel.debug', false);
         $container->setParameter('kernel.cache_dir', '/tmp');
@@ -77,25 +69,16 @@ class GraphQLExtensionTest extends \PHPUnit_Framework_TestCase
         $container->registerExtension(new GraphQLExtension());
         $locator = new FileLocator(__DIR__.'/Fixtures/config/'.$type);
 
-        switch ($type) {
-            case 'xml':
-                $loader = new XmlFileLoader($container, $locator);
-                break;
-            case 'yml':
-                $loader = new YamlFileLoader($container, $locator);
-                break;
-            case 'php':
-                $loader = new PhpFileLoader($container, $locator);
-                break;
-            default:
-                throw new \InvalidArgumentException('Invalid file type');
-        }
+        $loader = match ($type) {
+            'xml' => new XmlFileLoader($container, $locator),
+            'yml' => new YamlFileLoader($container, $locator),
+            'php' => new PhpFileLoader($container, $locator),
+            default => throw new \InvalidArgumentException('Invalid file type'),
+        };
 
         $loader->load($file.'.'.$type);
-        $container->getCompilerPassConfig()->setOptimizationPasses(array(
-            new ResolveDefinitionTemplatesPass(),
-        ));
-        $container->getCompilerPassConfig()->setRemovingPasses(array());
+        $container->getCompilerPassConfig()->setOptimizationPasses([new ResolveDefinitionTemplatesPass()]);
+        $container->getCompilerPassConfig()->setRemovingPasses([]);
         $container->compile();
         return $container;
     }

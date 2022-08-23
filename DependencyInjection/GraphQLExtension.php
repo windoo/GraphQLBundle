@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class GraphQLExtension extends Extension
 {
-    private $config = [];
+    private array $config = [];
 
     /**
      * {@inheritdoc}
@@ -25,7 +25,7 @@ class GraphQLExtension extends Extension
         $this->config  = $this->processConfiguration($configuration, $configs);
 
         $preparedHeaders = [];
-        $headers         = $this->config['response']['headers'] ? $this->config['response']['headers'] : $this->getDefaultHeaders();
+        $headers         = $this->config['response']['headers'] ?: $this->getDefaultHeaders();
         foreach ($headers as $header) {
             $preparedHeaders[$header['name']] = $header['value'];
         }

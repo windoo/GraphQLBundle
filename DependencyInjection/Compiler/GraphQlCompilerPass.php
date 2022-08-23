@@ -18,14 +18,13 @@ class GraphQlCompilerPass implements CompilerPassInterface
     /**
      * You can modify the container here before it is dumped to PHP code.
      *
-     * @param ContainerBuilder $container
      *
      * @throws \Exception
      */
     public function process(ContainerBuilder $container)
     {
         if ($loggerAlias = $container->getParameter('graphql.logger')) {
-            if (strpos($loggerAlias, '@') === 0) {
+            if (str_starts_with($loggerAlias, '@')) {
                 $loggerAlias = substr($loggerAlias, 1);
             }
 
@@ -44,8 +43,6 @@ class GraphQlCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param ContainerBuilder $container
-     *
      * @throws \Exception
      */
     private function processSecurityGuard(ContainerBuilder $container)
@@ -65,9 +62,7 @@ class GraphQlCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param ContainerBuilder $container
      * @param                  $voterClass
-     * @param array            $list
      *
      * @throws \Exception
      */

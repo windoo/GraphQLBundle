@@ -9,27 +9,14 @@ use Youshido\GraphQL\Parser\Ast\Field;
 class ResolveEvent extends GenericEvent
 {
     /**
-     * @var Field */
-    private $field;
-
-    /** @var array */
-    private $astFields;
-    
-    /** @var mixed|null */
-    private $resolvedValue;
-
-    /**
      * Constructor.
      *
      * @param FieldInterface $field
      * @param array $astFields
      * @param mixed|null $resolvedValue
      */
-    public function __construct(FieldInterface $field, array $astFields, $resolvedValue = null)
+    public function __construct(private FieldInterface $field, private array $astFields, private $resolvedValue = null)
     {
-        $this->field = $field;
-        $this->astFields = $astFields;
-        $this->resolvedValue = $resolvedValue;
         parent::__construct('ResolveEvent', [$field, $astFields, $resolvedValue]);
     }
 

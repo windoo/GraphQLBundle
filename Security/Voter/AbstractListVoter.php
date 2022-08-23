@@ -16,7 +16,7 @@ abstract class AbstractListVoter extends Voter
 {
 
     /** @var string[] */
-    private $list = [];
+    private array $list = [];
 
     /** @var bool */
     private $enabled = false;
@@ -31,9 +31,6 @@ abstract class AbstractListVoter extends Voter
         return is_object($token->getUser());
     }
 
-    /**
-     * @param array $list
-     */
     public function setList(array  $list)
     {
         $this->list = $list;

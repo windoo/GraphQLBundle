@@ -28,7 +28,7 @@ class GraphQLController extends Controller
     {
         try {
             $this->initializeSchemaService();
-        } catch (UnableToInitializeSchemaServiceException $e) {
+        } catch (UnableToInitializeSchemaServiceException) {
             return new JsonResponse(
                 [['message' => 'Schema class ' . $this->getSchemaClass() . ' does not exist']],
                 200,
@@ -40,11 +40,9 @@ class GraphQLController extends Controller
             return $this->createEmptyResponse();
         }
 
-        list($queries, $isMultiQueryRequest) = $this->getPayload();
+        [$queries, $isMultiQueryRequest] = $this->getPayload();
 
-        $queryResponses = array_map(function($queryData) {
-            return $this->executeQuery($queryData['query'], $queryData['variables']);
-        }, $queries);
+        $queryResponses = array_map(fn($queryData) => $this->executeQuery($queryData['query'], $queryData['variables']), $queries);
 
         $response = new JsonResponse($isMultiQueryRequest ? $queryResponses : $queryResponses[0], 200, $this->getParameter('graphql.response.headers'));
 
@@ -82,7 +80,7 @@ class GraphQLController extends Controller
         $isMultiQueryRequest = false;
         $queries = [];
 
-        $variables = is_string($variables) ? json_decode($variables, true) ?: [] : [];
+        $variables = is_string($variables) ? json_decode($variables, true, 512, JSON_THROW_ON_ERROR) ?: [] : [];
 
         $content = $request->getContent();
         if (!empty($content)) {
@@ -92,7 +90,7 @@ class GraphQLController extends Controller
                     'variables' => [],
                 ];
             } else {
-                $params = json_decode($content, true);
+                $params = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
                 if ($params) {
                     // check for a list of queries
@@ -103,11 +101,11 @@ class GraphQLController extends Controller
                     }
 
                     foreach ($params as $queryParams) {
-                        $query = isset($queryParams['query']) ? $queryParams['query'] : $query;
+                        $query = $queryParams['query'] ?? $query;
 
                         if (isset($queryParams['variables'])) {
                             if (is_string($queryParams['variables'])) {
-                                $variables = json_decode($queryParams['variables'], true) ?: $variables;
+                                $variables = json_decode($queryParams['variables'], true, 512, JSON_THROW_ON_ERROR) ?: $variables;
                             } else {
                                 $variables = $queryParams['variables'];
                             }
@@ -187,7 +185,7 @@ class GraphQLController extends Controller
     {
         $serviceName = $this->getParameter('graphql.schema_service');
 
-        if (substr($serviceName, 0, 1) === '@') {
+        if (str_starts_with($serviceName, '@')) {
             return substr($serviceName, 1, strlen($serviceName) - 1);
         }
 

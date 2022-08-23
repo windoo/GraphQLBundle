@@ -27,11 +27,7 @@ class Processor extends BaseProcessor
     /** @var  LoggerInterface */
     private $logger;
 
-    /** @var  SecurityManagerInterface */
-    private $securityManager;
-
-    /** @var EventDispatcherInterface */
-    private $eventDispatcher;
+    private ?\Youshido\GraphQLBundle\Security\Manager\SecurityManagerInterface $securityManager = null;
 
     /**
      * Constructor.
@@ -39,17 +35,14 @@ class Processor extends BaseProcessor
      * @param ExecutionContextInterface $executionContext
      * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(ExecutionContextInterface $executionContext, EventDispatcherInterface $eventDispatcher)
+    public function __construct(ExecutionContextInterface $executionContext, private EventDispatcherInterface $eventDispatcher)
     {
         $this->executionContext = $executionContext;
-        $this->eventDispatcher = $eventDispatcher;
 
         parent::__construct($executionContext->getSchema());
     }
 
     /**
-     * @param SecurityManagerInterface $securityManger
-     *
      * @return Processor
      */
     public function setSecurityManager(SecurityManagerInterface $securityManger)
@@ -98,7 +91,7 @@ class Processor extends BaseProcessor
         $resolveInfo = $this->createResolveInfo($field, $astFields);
         $this->assertClientHasFieldAccess($resolveInfo);
 
-        if (in_array('Symfony\Component\DependencyInjection\ContainerAwareInterface', class_implements($field))) {
+        if (in_array(\Symfony\Component\DependencyInjection\ContainerAwareInterface::class, class_implements($field))) {
             /** @var $field ContainerAwareInterface */
             $field->setContainer($this->executionContext->getContainer()->getSymfonyContainer());
         }
@@ -153,7 +146,7 @@ class Processor extends BaseProcessor
 
     private function isServiceReference($resolveFunc)
     {
-        return is_array($resolveFunc) && count($resolveFunc) == 2 && strpos($resolveFunc[0], '@') === 0;
+        return is_array($resolveFunc) && count($resolveFunc) == 2 && str_starts_with($resolveFunc[0], '@');
     }
 
     public function setLogger($logger = null)
